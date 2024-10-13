@@ -99,7 +99,7 @@ function LoginPage() {
               mt="lg"
               disabled={loading}
             />
-            <Group justify="flex-end" mt="lg">
+            <Group justify="space-between" mt="lg">
               <Link style={{ textDecoration: "none" }} to="/reset-password">
                 <Anchor component="button" size="sm" c="#15ABFF">
                   Forgot password?
