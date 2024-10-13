@@ -99,13 +99,6 @@ function LoginPage() {
               mt="lg"
               disabled={loading}
             />
-            <Group justify="space-between" mt="lg">
-              <Link style={{ textDecoration: "none" }} to="/reset-password">
-                <Anchor component="button" size="sm" c="#15ABFF">
-                  Forgot password?
-                </Anchor>
-              </Link>
-            </Group>
             <Button
               fullWidth
               size="md"
@@ -117,6 +110,13 @@ function LoginPage() {
               Sign in
             </Button>
           </form>
+          <Group justify="flex-end" mt="lg">
+            <Link style={{ textDecoration: "none" }} to="/reset-password">
+              <Anchor component="button" size="sm" c="#15ABFF">
+                Forgot password?
+              </Anchor>
+            </Link>
+          </Group>
         </Paper>
       </Container>
     </Center>
