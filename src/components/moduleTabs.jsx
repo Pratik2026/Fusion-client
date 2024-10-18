@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { setActiveTab_ } from "../redux/moduleslice";
 import classes from "../Modules/Dashboard/Dashboard.module.css";
 
-function ModuleTabs({ tabs, activeTab, setActiveTab, badges }) {
+function ModuleTabs({ tabs, activeTab, setActiveTab, badges = [] }) {
   const tabsListRef = useRef(null);
   const dispatch = useDispatch();
 
@@ -94,10 +94,6 @@ ModuleTabs.propTypes = {
   activeTab: PropTypes.string.isRequired,
   setActiveTab: PropTypes.func.isRequired,
   badges: PropTypes.arrayOf(PropTypes.number),
-};
-
-ModuleTabs.defaultProps = {
-  badges: [],
 };
 
 export default ModuleTabs;
