@@ -15,7 +15,7 @@ import {
   Text,
   CloseButton,
 } from "@mantine/core";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import classes from "./Dashboard.module.css";
 import { Empty } from "../../components/empty";
 import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
@@ -263,6 +263,8 @@ function Dashboard() {
       console.error("Error deleting notification:", err);
     }
   };
+  const roll_no = useSelector((state) => state.user.roll_no);
+  console.log(roll_no);
 
   return (
     <>
