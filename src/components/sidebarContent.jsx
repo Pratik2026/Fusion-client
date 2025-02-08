@@ -153,7 +153,12 @@ const Modules = [
 ];
 
 const otherItems = [
-  { label: "Profile", icon: <ProfileIcon size={18} /> },
+  {
+    label: "Profile",
+    id: "profile",
+    icon: <ProfileIcon size={18} />,
+    url: "/profile",
+  },
   { label: "Settings", icon: <SettingsIcon size={18} /> },
   { label: "Help", icon: <HelpIcon size={18} /> },
 ];
@@ -265,6 +270,7 @@ function SidebarContent({ isCollapsed, toggleSidebar }) {
               }
               onMouseEnter={() => setHover(item.label)}
               onMouseLeave={() => setHover(null)}
+              onClick={() => handleModuleClick(item)}
             >
               {!isCollapsed && item.label}
             </Button>
