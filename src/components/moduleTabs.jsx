@@ -57,7 +57,7 @@ function ModuleTabs({ tabs, activeTab, setActiveTab, badges = [] }) {
               nowrap
               style={{
                 display: "flex",
-                width: isMobile ? "200px" : "320px",
+                width: isMobile ? "200px" : "auto",
                 flexWrap: "nowrap",
                 overflowX: isMobile ? "scroll" : "none",
               }}
@@ -67,7 +67,11 @@ function ModuleTabs({ tabs, activeTab, setActiveTab, badges = [] }) {
                 <Tabs.Tab
                   value={`${index}`}
                   key={index}
-                  className={activeTab === `${index}` ? classes.activeTab : ""}
+                  className={
+                    activeTab === `${index}`
+                      ? classes.fusionActiveRecentTab
+                      : ""
+                  }
                 >
                   <Flex gap="4px">
                     <Text>{tab.title}</Text>

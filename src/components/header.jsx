@@ -84,7 +84,10 @@ function Header({ opened, toggleSidebar }) {
           },
         },
       );
-      dispatch(setPfNo(null));
+
+      if (localStorage.getItem("pfNo") != null) {
+        dispatch(setPfNo(null));
+      }
       localStorage.removeItem("authToken");
       navigate("/accounts/login");
       // queryclient.invalidateQueries();
@@ -95,23 +98,28 @@ function Header({ opened, toggleSidebar }) {
   };
 
   return (
-    <Box
+    <Flex
       bg="#F5F7F8"
       justify="space-between"
       align="center"
       pl="sm"
       h="64px" // Height has already been set in layout.jsx but had to set the height here as well for properly aligning the avatar
     >
-      <Flex justify={{ base: "space-between" }} align="center" h="100%">
-        <Box>
-          <Burger
-            opened={opened}
-            onClick={toggleSidebar}
-            hiddenFrom="sm"
-            size="sm"
-          />
-        </Box>
-        <Text fz="h2" visibleFrom="md">
+      <Box>
+        <Burger
+          opened={opened}
+          onClick={toggleSidebar}
+          hiddenFrom="sm"
+          size="sm"
+        />
+      </Box>
+      <Flex
+        justify={{ base: "space-between" }}
+        align="center"
+        h="100%"
+        w="100%"
+      >
+        <Text fz={{ base: "h2", xs: "h3" }} visibleFrom="sm">
           FUSION - IIITDMJ's ERP Portal
         </Text>
         <Flex
@@ -174,7 +182,13 @@ function Header({ opened, toggleSidebar }) {
                       variant="light"
                       color="blue"
                       size="xs"
-                      onClick={() => navigate("/facultyprofessionalprofile")}
+                      onClick={() =>
+                        navigate(
+                          role === "student"
+                            ? "/profile"
+                            : "/facultyprofessionalprofile",
+                        )
+                      }
                     >
                       Profile
                     </Button>
@@ -194,7 +208,7 @@ function Header({ opened, toggleSidebar }) {
           </Popover>
         </Flex>
       </Flex>
-    </Box>
+    </Flex>
   );
 }
 
