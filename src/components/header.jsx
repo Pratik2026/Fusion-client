@@ -146,7 +146,7 @@ function Header({ opened, toggleSidebar }) {
           <Popover
             opened={popoverOpened}
             onChange={setPopoverOpened}
-            width={340}
+            width={{ xxs: "320px", xs: "340px" }}
             position="bottom-end"
             withArrow
             shadow="xl"
@@ -165,18 +165,18 @@ function Header({ opened, toggleSidebar }) {
               style={{
                 border: "1px solid #f0f0f0",
               }}
-              w={400}
+              width={{ xxs: "320px", xs: "340px" }}
             >
               <Group spacing="xs">
                 <Avatar size="xl" radius="xl" src={avatarImage} />
                 <Stack gap={8}>
-                  <Text size="lg" fz={24} fw={700}>
+                  <Text size="lg" fz={{ xxs: 18, xs: 24 }} fw={700}>
                     {username?.length > 18
                       ? `${username.slice(0, 18)}...`
                       : username}
                   </Text>
 
-                  <Group spacing="xs">
+                  <Flex gap="xs" direction={{ xxs: "column", xs: "row" }}>
                     <Button
                       rightSection={<User size={16} />}
                       variant="light"
@@ -201,7 +201,7 @@ function Header({ opened, toggleSidebar }) {
                     >
                       Log out
                     </Button>
-                  </Group>
+                  </Flex>
                 </Stack>
               </Group>
             </Popover.Dropdown>

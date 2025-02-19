@@ -1,17 +1,58 @@
 import { useState } from "react";
+import PropTypes from "prop-types";
 import { Table, Text, Button, Flex, Divider, TextInput } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
+import axios from "axios";
+import { updateProfileDataRoute } from "../../../routes/dashboardRoutes";
 
-function ProfileComponent() {
+function ProfileComponent({ data }) {
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    about: "N/A",
-    dob: "Jan 01, 2004",
-    address: "XYZ",
-    contactNumber: "+91 99999 99999",
-    mailId: "abc@gmail.com",
+    about: data.profile?.about_me || "N/A",
+    dob: data.profile?.date_of_birth || "Jan 01, 2004",
+    address: data.profile?.address || "XYZ",
+    contactNumber: data.profile?.phone_no || "+91 99999 99999",
+    mailId: data.current[0]?.user.email || "abc@gmail.com",
   });
 
-  const handleEditClick = () => setIsEditing(!isEditing);
+  const handleEditClick = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return console.error("No authentication token found!");
+    if (isEditing) {
+      try {
+        const payload = {
+          profilesubmit: {
+            about_me: profileData.about,
+            date_of_birth: profileData.dob,
+            address: profileData.address,
+            phone_no: profileData.contactNumber,
+          },
+        };
+
+        const response = await axios.put(updateProfileDataRoute, payload, {
+          headers: { Authorization: `Token ${token}` },
+        });
+
+        if (response.status === 200) {
+          notifications.show({
+            message: "Profile updated successfully!",
+            type: "success",
+          });
+        } else {
+          notifications.show({
+            message: "Failed to update profile",
+            type: "error",
+          });
+        }
+      } catch (error) {
+        notifications.show({
+          message: "Error updating profile",
+          type: "error",
+        });
+      }
+    }
+    setIsEditing(!isEditing);
+  };
 
   const handleChange = (field, value) => {
     setProfileData((prev) => ({ ...prev, [field]: value }));
@@ -19,7 +60,7 @@ function ProfileComponent() {
 
   return (
     <Flex
-      w="60%"
+      w={{ base: "100%", sm: "60%" }}
       p="md"
       gap="md"
       style={{ border: "1px solid lightgray", borderRadius: "5px" }}
@@ -126,16 +167,7 @@ function ProfileComponent() {
             </Table.Tr>
             <Table.Tr>
               <Table.Td fw={500}>Mail ID</Table.Td>
-              <Table.Td>
-                {isEditing ? (
-                  <TextInput
-                    value={profileData.mailId}
-                    onChange={(e) => handleChange("mailId", e.target.value)}
-                  />
-                ) : (
-                  profileData.mailId
-                )}
-              </Table.Td>
+              <Table.Td>{profileData.mailId}</Table.Td>
             </Table.Tr>
           </Table.Tbody>
         </Table>
@@ -143,5 +175,23 @@ function ProfileComponent() {
     </Flex>
   );
 }
+
+ProfileComponent.propTypes = {
+  data: PropTypes.shape({
+    profile: PropTypes.shape({
+      about_me: PropTypes.string,
+      date_of_birth: PropTypes.string,
+      address: PropTypes.string,
+      phone_no: PropTypes.number,
+    }),
+    current: PropTypes.arrayOf(
+      PropTypes.shape({
+        user: PropTypes.shape({
+          email: PropTypes.string,
+        }),
+      }),
+    ),
+  }),
+};
 
 export default ProfileComponent;

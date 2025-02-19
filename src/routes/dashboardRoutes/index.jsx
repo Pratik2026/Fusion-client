@@ -7,3 +7,4 @@ export const notificationReadRoute = `${host}/api/notificationread`;
 export const notificationDeleteRoute = `${host}/api/notificationdelete`;
 export const notificationUnreadRoute = `${host}/api/notificationunread`;
 export const getProfileDataRoute = `${host}/api/profile/`;
+export const updateProfileDataRoute = `${host}/api/profile_update/`;

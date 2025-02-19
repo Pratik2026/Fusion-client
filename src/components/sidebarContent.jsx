@@ -189,7 +189,13 @@ function SidebarContent({ isCollapsed, toggleSidebar }) {
 
   return (
     <>
-      <Flex gap={32} align="center" h={64} justify="center">
+      <Flex
+        gap={32}
+        align="center"
+        h={64}
+        justify="center"
+        w={{ xxs: "300px" }}
+      >
         {!isCollapsed && (
           <img src={IIITLOGO} alt="IIIT Logo" style={{ maxWidth: "150px" }} />
         )}
