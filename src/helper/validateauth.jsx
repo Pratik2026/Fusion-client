@@ -64,7 +64,7 @@ function ValidateAuth() {
         message: "Your session has expired. Please log in again.",
         color: "red",
       });
-
+      localStorage.removeItem("authToken");
       dispatch(clearUserName());
       dispatch(clearRoles());
       navigate("/accounts/login");

@@ -151,6 +151,9 @@ function InternshipsTab({ internshipsData }) {
         Submit
       </Button>
       <Divider my="md" />
+      <Text fw={500} mb="md">
+        Your Experience
+      </Text>
 
       {internshipsData.length > 0 ? (
         <Table striped highlightOnHover withTableBorder withColumnBorders>
@@ -321,6 +324,9 @@ function ProjectsTab({ projectsData }) {
         Submit
       </Button>
       <Divider my="md" />
+      <Text fw={500} mb="md">
+        Your Projects
+      </Text>
       {projectsData.length > 0 ? (
         <Table striped highlightOnHover withTableBorder withColumnBorders>
           <Table.Thead>

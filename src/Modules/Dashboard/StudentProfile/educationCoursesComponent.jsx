@@ -136,6 +136,9 @@ function EducationTab({ educationData }) {
         Submit
       </Button>
       <Divider my="md" />
+      <Text fw={500} mb="md">
+        Your Educations
+      </Text>
       {educationData.length > 0 ? (
         <Table striped highlightOnHover withTableBorder withColumnBorders>
           <Table.Thead>
@@ -291,6 +294,9 @@ function CoursesTab({ coursesData }) {
         Submit
       </Button>
       <Divider my="md" />
+      <Text fw={500} mb="md">
+        Your Certificates
+      </Text>
       {coursesData.length > 0 ? (
         <Table striped highlightOnHover withTableBorder withColumnBorders>
           <Table.Thead>
