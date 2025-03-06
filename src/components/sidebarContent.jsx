@@ -46,7 +46,9 @@ function SidebarContent({ isCollapsed, toggleSidebar }) {
     "home",
     "fts",
     "complaint_management",
+    "mess_management",
     "visitor_hostel",
+    "department",
   ];
 
   const Modules = [
@@ -73,7 +75,7 @@ function SidebarContent({ isCollapsed, toggleSidebar }) {
       label: "Mess Management",
       id: "mess_management",
       icon: <MessIcon size={18} />,
-      url: "/",
+      url: "/mess",
     },
     {
       label: "Visitor's Hostel",
