@@ -48,7 +48,15 @@ function SidebarContent({ isCollapsed, toggleSidebar }) {
     "complaint_management",
     "mess_management",
     "visitor_hostel",
+    "hostel_management",
     "department",
+    "gymkhana",
+    "iwd",
+    "phc",
+    "spacs",
+    "placement_cell",
+    "purchase_and_store",
+    "rspc",
   ];
 
   const Modules = [
@@ -87,7 +95,7 @@ function SidebarContent({ isCollapsed, toggleSidebar }) {
       label: "HealthCare Center",
       id: "phc",
       icon: <HealthIcon size={18} />,
-      url: "/",
+      url: "/healthcenter",
     },
     {
       label: "File Tracking",
@@ -99,7 +107,7 @@ function SidebarContent({ isCollapsed, toggleSidebar }) {
       label: "Scholarship Portal",
       id: "spacs",
       icon: <ScholarshipIcon size={18} />,
-      url: "/",
+      url: "/scholarship",
     },
     {
       label: "Complaint System",
@@ -111,7 +119,7 @@ function SidebarContent({ isCollapsed, toggleSidebar }) {
       label: "Placement Cell",
       id: "placement_cell",
       icon: <PlacementIcon size={18} />,
-      url: "/",
+      url: "/placement-cell",
     },
     {
       label: "Department Portal",
@@ -120,16 +128,16 @@ function SidebarContent({ isCollapsed, toggleSidebar }) {
       url: "/department",
     },
     {
-      label: "Research",
+      label: "Research Projects",
       id: "rspc",
       icon: <ResearchIcon size={18} />,
-      url: "/",
+      url: "/research",
     },
     {
       label: "Purchase and Store",
       id: "purchase_and_store",
       icon: <StoreIcon size={18} />,
-      url: "/",
+      url: "/purchase",
     },
     {
       label: "Human Resource",
@@ -147,19 +155,19 @@ function SidebarContent({ isCollapsed, toggleSidebar }) {
       label: "Gymkhana",
       id: "gymkhana",
       icon: <GymkhanaIcon size={18} />,
-      url: "/",
+      url: "/GymKhana",
     },
     {
       label: "Institute Work Departments",
       id: "iwd",
       icon: <IWDIcon size={18} />,
-      url: "/",
+      url: "/iwd",
     },
     {
       label: "Hostel Management",
       id: "hostel_management",
       icon: <HostelIcon size={18} />,
-      url: "/",
+      url: "/hostel",
     },
     {
       label: "Other Academic Procedure",
@@ -193,14 +201,26 @@ function SidebarContent({ isCollapsed, toggleSidebar }) {
     const filterModules = Modules.filter(
       (module) => accessibleModules[module.id] || module.id === "home",
     );
+
     setFilteredModules(filterModules);
   }, [accessibleModules]);
 
   const handleModuleClick = (item) => {
+    let path = item.url;
+
+    // HealthCare Center icon clicked navigation
+    if (item.id === "phc") {
+      if (role === "Compounder") {
+        path = "/healthcenter/compounder/patient-log";
+      } else if (role === "student" || role === "Professor") {
+        path = "/healthcenter/student/history";
+      }
+    }
+
     setSelected(item.label);
     toggleSidebar();
     dispatch(setCurrentModule(item.label));
-    navigate(item.url);
+    navigate(path);
   };
 
   return (

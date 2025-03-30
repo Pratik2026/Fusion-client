@@ -15,6 +15,7 @@ import { useSelector } from "react-redux";
 import EditDraft from "./EditDraft";
 import {
   createArchiveRoute,
+  createFileRoute,
   getDraftRoute,
 } from "../../../routes/filetrackingRoutes";
 
@@ -22,7 +23,7 @@ export default function Draft() {
   const [files, setFiles] = useState([]);
   const token = localStorage.getItem("authToken");
   const role = useSelector((state) => state.user.role);
-  const username = useSelector((state) => state.user.name);
+  const username = useSelector((state) => state.user.roll_no);
   let current_module = useSelector((state) => state.module.current_module);
   current_module = current_module.split(" ").join("").toLowerCase();
 
@@ -83,8 +84,14 @@ export default function Draft() {
   };
 
   const handleDeleteFile = async (fileID) => {
-    // const response = await axios.delete
-    setFiles((prevFiles) => prevFiles.filter((file) => file.fileID !== fileID));
+    // eslint-disable-next-line no-unused-vars
+    const response = await axios.delete(`${createFileRoute}${fileID}`, {
+      withCredentials: true,
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    });
+    setFiles((prevFiles) => prevFiles.filter((file) => file.id !== fileID));
     notifications.show({
       title: "File deleted",
       message: "The file has been successfully deleted",
@@ -106,7 +113,13 @@ export default function Draft() {
       padding="lg"
       radius="md"
       withBorder
-      style={{ backgroundColor: "#F5F7F8", maxWidth: "100%" }}
+      style={{
+        backgroundColor: "#F5F7F8",
+        position: "absolute",
+        height: "70vh",
+        width: "90vw",
+        overflowY: "auto",
+      }}
     >
       {!editFile && (
         <Title
@@ -121,7 +134,11 @@ export default function Draft() {
       )}
 
       {editFile ? (
-        <EditDraft file={editFile} onBack={handleBack} />
+        <EditDraft
+          file={editFile}
+          onBack={handleBack}
+          deleteDraft={(fileID) => handleDeleteFile(fileID)}
+        />
       ) : (
         <Box
           style={{
@@ -137,7 +154,7 @@ export default function Draft() {
             style={{
               width: "100%",
               borderCollapse: "collapse",
-              tableLayout: "fixed",
+              tableLayout: "auto",
               fontSize: "14px",
             }}
           >
@@ -162,7 +179,7 @@ export default function Draft() {
                     border: "1px solid #ddd",
                   }}
                 >
-                  Being Sent to
+                  Created By
                 </th>
                 <th
                   style={{
@@ -181,6 +198,24 @@ export default function Draft() {
                   }}
                 >
                   Subject
+                </th>
+                <th
+                  style={{
+                    padding: "12px",
+                    width: "33%",
+                    border: "1px solid #ddd",
+                  }}
+                >
+                  Description
+                </th>
+                <th
+                  style={{
+                    padding: "12px",
+                    width: "33%",
+                    border: "1px solid #ddd",
+                  }}
+                >
+                  Remarks
                 </th>
                 <th
                   style={{
@@ -236,15 +271,7 @@ export default function Draft() {
                       </ActionIcon>
                     </Tooltip>
                   </td>
-                  {/* <td
-                    style={{
-                      padding: "12px",
-                      border: "1px solid #ddd",
-                      textAlign: "center",
-                    }}
-                  >
-                    {file.fileType}
-                  </td> */}
+
                   <td
                     style={{
                       padding: "12px",
@@ -261,7 +288,11 @@ export default function Draft() {
                       textAlign: "center",
                     }}
                   >
-                    {file.id}
+                    {new Date(file.upload_date).getFullYear()}-
+                    {(new Date(file.upload_date).getMonth() + 1)
+                      .toString()
+                      .padStart(2, "0")}
+                    -#{file.id}
                   </td>
                   <td
                     style={{
@@ -270,7 +301,25 @@ export default function Draft() {
                       textAlign: "center",
                     }}
                   >
-                    {file.subject}
+                    {file.file_extra_JSON.subject}
+                  </td>
+                  <td
+                    style={{
+                      padding: "12px",
+                      border: "1px solid #ddd",
+                      textAlign: "center",
+                    }}
+                  >
+                    {file.file_extra_JSON.description}
+                  </td>
+                  <td
+                    style={{
+                      padding: "12px",
+                      border: "1px solid #ddd",
+                      textAlign: "center",
+                    }}
+                  >
+                    {file.file_extra_JSON.remarks}
                   </td>
                   <td
                     style={{

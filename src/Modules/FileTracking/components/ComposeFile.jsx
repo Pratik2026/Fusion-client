@@ -22,6 +22,7 @@ import {
   designationsRoute,
   createFileRoute,
   getUsernameRoute,
+  createDraftRoute,
 } from "../../../routes/filetrackingRoutes";
 
 axios.defaults.withCredentials = true;
@@ -34,7 +35,9 @@ export default function Compose() {
   const [receiver_designations, setReceiverDesignations] = React.useState("");
   const [subject, setSubject] = React.useState("");
   const [description, setDescription] = React.useState("");
+  const [remarks, setRemarks] = React.useState("");
   const token = localStorage.getItem("authToken");
+
   const roles = useSelector((state) => state.user.roles);
   let module = useSelector((state) => state.module.current_module);
   module = module.split(" ").join("").toLowerCase();
@@ -63,11 +66,11 @@ export default function Compose() {
     setReceiverUsername("");
     setSubject("");
     setDescription("");
+    setRemarks("");
   };
   useEffect(() => {
     setDesignation(roles);
-    console.log(receiverRoles);
-  }, [roles, receiverRoles]);
+  }, [roles]);
 
   useEffect(() => {
     let isMounted = true;
@@ -84,7 +87,6 @@ export default function Compose() {
         // Ensure response.data.users is an array before mapping
         if (response.data && Array.isArray(users)) {
           const suggestedUsernames = users.map((user) => user.fields.username);
-          console.log(suggestedUsernames);
           if (isMounted) {
             setUsernameSuggestions(suggestedUsernames);
           }
@@ -104,39 +106,56 @@ export default function Compose() {
   }, [receiver_username, token]);
 
   const fetchRoles = async () => {
-    const response = await axios.get(
-      `${designationsRoute}${receiver_username}`,
-      {
+    try {
+      const response = await axios.get(
+        `${designationsRoute}${receiver_username}`,
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        },
+      );
+      console.log(response);
+      setReceiverDesignations(response.data.designations);
+    } catch (err) {
+      if (err.response && err.response.status === 500) {
+        console.warn("Retrying fetchRoles in 2 seconds...");
+        setTimeout(fetchRoles, 2000); // Retry after 2s
+      }
+    }
+  };
+  const handleSaveDraft = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("designation", uploaderRole);
+      formData.append("src_module", module);
+      formData.append("subject", subject);
+      formData.append("description", description);
+      formData.append("remarks", remarks);
+      formData.append("receiver_username", receiver_username);
+      formData.append("receiver_designation", receiver_designation);
+      files.forEach((file) => {
+        formData.append("files", file); // `files` should be an array of File objects
+      });
+      // eslint-disable-next-line no-unused-vars
+      const response = await axios.post(`${createDraftRoute}`, formData, {
         headers: {
           Authorization: `Token ${token}`,
         },
-      },
-    );
-    setReceiverDesignations(response.data.designations);
+      });
+      notifications.show({
+        title: "Draft saved successfully",
+        message: "The draft has been saved successfully.",
+        color: "green",
+        position: "top-center",
+      });
+      postSubmit();
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const handleSaveDraft = async () => {
-    // const response = await axios.post(
-    //   `${draftRoute}`,
-    //   {
-    //     designation: uploaderRole,
-    //     src_module: module,
-    //     file,
-    //   },
-    //   {
-    //     headers: {
-    //       Authorization: `Token ${token}`,
-    //     },
-    //   },
-    // );
-    notifications.show({
-      title: "Draft saved successfully",
-      message: "The draft has been saved successfully.",
-      color: "green",
-      position: "top-center",
-    });
-    postSubmit();
-  };
+  // postSubmit();
   const handleCreateFile = async () => {
     if (!files) {
       notifications.show({
@@ -178,7 +197,7 @@ export default function Compose() {
           color: "green",
           position: "top-center",
         });
-        // postSubmit();
+        postSubmit();
       }
     } catch (err) {
       console.log(err);
@@ -191,7 +210,14 @@ export default function Compose() {
       padding="lg"
       radius="md"
       withBorder
-      style={{ backgroundColor: "#F5F7F8", position: "relative" }}
+      className="inbox-card"
+      style={{
+        backgroundColor: "#F5F7F8",
+        position: "absolute",
+        height: "70vh",
+        width: "90vw",
+        overflowY: "auto",
+      }}
     >
       <Box
         style={{
@@ -250,6 +276,14 @@ export default function Compose() {
           onChange={(e) => setDescription(e.target.value)}
           required
         />
+        <Textarea
+          label="Remarks"
+          placeholder="Enter remarks"
+          mb="sm"
+          value={remarks}
+          onChange={(e) => setRemarks(e.target.value)}
+          required
+        />
         <Select
           label="Designation"
           placeholder="Sender's Designation"
@@ -266,8 +300,8 @@ export default function Compose() {
           value={files} // Set the file state as the value
           onChange={handleFileChange} // Update file state on change
           mb="sm"
-          withAsterisk
           multiple
+          maxSize={10 * 1024 * 1024}
         />
         {files && (
           <Group position="apart" mt="sm">
@@ -284,8 +318,8 @@ export default function Compose() {
         <Grid mb="sm" gutter="sm">
           <Grid.Col span={{ base: 12, sm: 6 }}>
             <Autocomplete
-              label="Forward To"
-              placeholder="Enter forward recipient"
+              label="Send To"
+              placeholder="Enter recipient"
               value={receiver_username}
               data={usernameSuggestions} // Pass the array of suggestions
               onChange={(value) => {
@@ -298,10 +332,16 @@ export default function Compose() {
             <Select
               label="Receiver Designation"
               placeholder="Select designation"
-              onClick={() => fetchRoles()}
-              value={receiver_designation}
-              data={receiverRoles}
+              onClick={() => {
+                if (receiverRoles.length === 0) {
+                  fetchRoles();
+                }
+              }}
+              value={receiver_designation} // Use receiver_designation (string)
+              data={receiverRoles} // Ensure this is populated correctly
               onChange={(value) => setReceiverDesignation(value)}
+              searchable // Allows searching for designations
+              nothingFound="No designations found"
             />
           </Grid.Col>
         </Grid>
