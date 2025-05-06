@@ -59,6 +59,42 @@ const GetFileData = async ({ setLoading, request, setMessages }) => {
   }
 };
 
+const GetWorkData = async ({ setWorkDetails, id, setLoading }) => {
+  const token = localStorage.getItem("authToken");
+  try {
+    setLoading(true);
+    const response = await axios.get(IWD_ROUTES.GET_WORK_DATA, {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+      params: { request_id: id },
+    });
+    setWorkDetails(response.data);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+const GetVendorData = async (id, setVendorData, setLoading) => {
+  const token = localStorage.getItem("authToken");
+  try {
+    setLoading(true);
+    const response = await axios.get(IWD_ROUTES.GET_VENDOR_DATA, {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+      params: { work: id },
+    });
+    setVendorData(response.data);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 const HandleRequest = async ({
   setIsLoading,
   setIsSuccess,
@@ -75,12 +111,15 @@ const HandleRequest = async ({
   setIsSuccess(false);
   const token = localStorage.getItem("authToken");
   const data = form.getValues();
+  console.log("\n\n123data aagya hai bhaisab");
+  console.log(data);
   data.role = role;
   console.log(data);
   try {
     const response = await axios.post(IWD_ROUTES.CREATE_REQUESTS, data, {
       headers: {
         Authorization: `Token ${token}`,
+        "Content-Type": "multipart/form-data",
       },
     });
     console.log(response);
@@ -163,9 +202,6 @@ const HandleIssueWorkOrder = async ({
     data.date = formatDate(data.date);
   }
   data.start_date = formatDate(data.start_date);
-  data.completion_date = formatDate(data.completion_date);
-
-  console.log(data);
   try {
     const response = await axios.post(IWD_ROUTES.ISSUE_WORK_ORDER, data, {
       headers: {
@@ -178,6 +214,48 @@ const HandleIssueWorkOrder = async ({
       setIsSuccess(true);
       setTimeout(() => {
         submitter();
+      }, 1000);
+    }, 1000);
+  } catch (error) {
+    console.error(error);
+    setIsLoading(false);
+  }
+};
+
+const HandleAddVendor = async ({
+  form,
+  setIsLoading,
+  setIsSuccess,
+  onBack,
+}) => {
+  /* 
+    This function is for adding vendor
+    Used in :
+    - /components/managebills/addvendors/AddVendor.jsx
+  */
+  setIsLoading(true);
+  setIsSuccess(false);
+  const data = form.getValues();
+  const postData = {
+    work: data.work,
+    name: data.name,
+    contact_number: data.country_code + data.contact_number,
+    email_address: data.email_address,
+  };
+  setIsLoading(true);
+  setIsSuccess(false);
+  const token = localStorage.getItem("authToken");
+  try {
+    await axios.post(IWD_ROUTES.ADD_VENDOR, postData, {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    });
+    setTimeout(() => {
+      setIsLoading(false);
+      setIsSuccess(true);
+      setTimeout(() => {
+        onBack();
       }, 1000);
     }, 1000);
   } catch (error) {
@@ -401,6 +479,7 @@ const HandleAdminApproval = async ({
   formData.fileid = request.file_id;
   formData.role = role;
   formData.action = action;
+  console.log(formData);
   try {
     const response = await axios.post(
       IWD_ROUTES.HANDLE_ADMIN_APPROVAL,
@@ -523,29 +602,44 @@ const HandleProposalSubmission = async ({
   setIsSuccess,
   submitter,
   form,
+  proposalType,
 }) => {
   setIsLoading(true);
   setIsSuccess(false);
-
   const token = localStorage.getItem("authToken");
-  const payload = {
-    ...form.values,
-    supporting_documents: form.values.supporting_documents || null,
-    items: form.values.items.map((item) => ({
-      name: item.name,
-      description: item.description,
-      unit: item.unit,
-      price_per_unit: item.price_per_unit,
-      quantity: item.quantity,
-      docs: item.docs || null,
-    })),
-  };
-  console.log(payload);
+  const values = form.getValues();
+  const formData = new FormData();
+
+  formData.append("id", values.id);
+  formData.append("designation", values.designation);
+  formData.append("status", values.status);
+  formData.append("role", values.role);
+
+  if (values.supporting_documents) {
+    formData.append("supporting_documents", values.supporting_documents);
+  }
+
+  values.items.forEach((item, index) => {
+    formData.append(`items[${index}][name]`, item.name);
+    formData.append(`items[${index}][description]`, item.description);
+    formData.append(`items[${index}][unit]`, item.unit);
+    formData.append(`items[${index}][price_per_unit]`, item.price_per_unit);
+    formData.append(`items[${index}][quantity]`, item.quantity);
+    if (item.docs) {
+      formData.append(`items[${index}][docs]`, item.docs);
+    }
+  });
 
   try {
-    const response = await axios.post(IWD_ROUTES.CREATE_PROPOSAL, payload, {
+    const url =
+      proposalType === "create"
+        ? IWD_ROUTES.CREATE_PROPOSAL
+        : IWD_ROUTES.UPDATE_REQUESTS;
+
+    const response = await axios.post(url, formData, {
       headers: {
         Authorization: `Token ${token}`,
+        "Content-Type": "multipart/form-data",
       },
     });
 
@@ -630,4 +724,7 @@ export {
   HandleProposalSubmission,
   GetProposals,
   GetItems,
+  HandleAddVendor,
+  GetWorkData,
+  GetVendorData,
 };
