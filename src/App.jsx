@@ -49,6 +49,7 @@ const Profile = lazy(
 );
 const LoginPage = lazy(() => import("./pages/login"));
 const ForgotPassword = lazy(() => import("./pages/forgotPassword"));
+const ResetPasswordConfirm = lazy(() => import("./pages/resetPasswordConfirm"));
 const AcademicPage = lazy(() => import("./Modules/Academic/index"));
 const ValidateAuth = lazy(() => import("./helper/validateauth"));
 const HR = lazy(() => import("./Modules/HR/index"));
@@ -114,9 +115,13 @@ export default function App() {
   return (
     <MantineProvider theme={theme}>
       <Notifications position="top-center" autoClose={2000} limit={1} />
-      {location.pathname !== ("/accounts/login" && "/reset-password") && (
-        <ValidateAuth />
-      )}
+      {![
+        "/accounts/login",
+        "/reset-password",
+        location.pathname.startsWith("/reset-password-confirm/")
+          ? location.pathname
+          : "",
+      ].includes(location.pathname) && <ValidateAuth />}
       {location.pathname !== "/accounts/login" && <InactivityHandler />}
 
       <Routes>
@@ -507,6 +512,19 @@ export default function App() {
         <Route path="/patent/*" element={<PatentRoutes />} />
         <Route path="/accounts/login" element={<LoginPage />} />
         <Route path="/reset-password" element={<ForgotPassword />} />
+        <Route
+          path="/reset-password-confirm/:uid/:token"
+          element={
+            <Suspense
+              fallback={
+                <div style={{ textAlign: "center" }}>Loading .... </div>
+              }
+            >
+              <ResetPasswordConfirm />
+            </Suspense>
+          }
+        />
+
         <Route
           path="/GymKhana"
           element={
